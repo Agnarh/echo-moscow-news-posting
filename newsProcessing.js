@@ -1,64 +1,62 @@
 var request = require('request');
 var cheerio = require("cheerio");
-var config = require('./config');
+var siteSettings = require('./config').siteSettings;
 var _ = require('lodash');
+
+var newsUrlTemplateFunc = _.template(siteSettings.newsUrlTemplate);
 
 module.exports = {
     getLatestNewsNumber: function (fulfill, reject) {
-        request({ uri: 'http://echosar.ru/news/' }, function (error, response, body) {
+        request({ uri: siteSettings.urlToNewsFolder }, function (error, response, body) {
             if (error || response.statusCode !== 200) {
-                reject();
+                reject(error);
                 return;
             }
 
             var $ = cheerio.load(body);
-            var links = $('.news_block a:not(.more)').map(function () {
-                return $(this).attr('href');
-            }).get();
+            var numbers = $(siteSettings.newsRefsSelector)
+                .map(function () { return $(this).attr('href'); })
+                .get()
+                .map(item => +item.match(siteSettings.newsUrlNumberExtractRegex)[0]);
 
-            var result = _.chain(links)
-                .map(function (item) {
-                    return parseInt(_.last(item.split(/_/)));
-                })
-                .max()
-                .value();
-
-            fulfill(result);
+            fulfill(_.max(numbers));
         });
     },
     getNewsUrls: function (latestNewsNumber) {
-        var result = [];
-
-        for (var i = 0; i < config.count; i++) {
-            result[i] = ['http://echosar.ru/news/news_', latestNewsNumber - i, '.html'].join('');
-        }
-
-        return result;
+        return _.range(latestNewsNumber, latestNewsNumber - siteSettings.count, -1)
+            .map(index => newsUrlTemplateFunc({index}));
     },
     processNewsUrl: function (url) {
         return new Promise(function (fulfill, reject) {
-            var result = {
-                url: url,
-            };
-            
             request({ uri: url }, function (error, response, body) {
                 if (error || response.statusCode !== 200) {
                     fulfill(null);
                     return;
                 }
-                
+
+                var result = { url: url };
                 var $ = cheerio.load(body);
-                
-                result.header = $('h1').text().trim();
-                
+
+                result.title = $(siteSettings.newsTitleSelector).text().trim();
+
                 var text = '';
-                $('.nc_full_text span').each(function () {
+                $(siteSettings.newsTextSelector).each(function () {
                     text += $(this).text();
                 });
-                result.newsText = text.trim();
-                
-                result.dateTime = $('.nc_date').text().trim() + ' ' + $('.nc_time').text().trim();
-                
+
+                result.newsText = $(siteSettings.newsTextSelector)
+                    .map(function () { return $(this).text(); })
+                    .get()
+                    .reduce(function (result, paragraph) { 
+                        result += paragraph; 
+                        return result; 
+                    }, '')
+                    .trim();
+
+                result.pubDate = [siteSettings.newsDateSelector, siteSettings.newsTimeSelector]
+                    .map(item => $(item).text().trim())
+                    .join(' ');
+
                 fulfill(result);
             });
         });
