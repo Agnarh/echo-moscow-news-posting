@@ -39,12 +39,11 @@ module.exports = {
         return new Promise(function (fulfill, reject) {
             var result = {
                 url: url,
-                error: false
             };
             
             request({ uri: url }, function (error, response, body) {
                 if (error || response.statusCode !== 200) {
-                    fulfill(result);
+                    fulfill(null);
                     return;
                 }
                 
@@ -65,6 +64,6 @@ module.exports = {
         });
     },
     processResultNews: function (news) {
-        console.log(news.filter(item => !item.error));
+        console.log(news.filter(item => item));
     }
 };
