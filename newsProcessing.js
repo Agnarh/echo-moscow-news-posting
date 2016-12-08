@@ -39,12 +39,7 @@ module.exports = {
 
                 result.title = $(siteSettings.newsTitleSelector).text().trim();
 
-                var text = '';
-                $(siteSettings.newsTextSelector).each(function () {
-                    text += $(this).text();
-                });
-
-                result.newsText = $(siteSettings.newsTextSelector)
+                result.text = $(siteSettings.newsTextSelector)
                     .map(function () { return $(this).text(); })
                     .get()
                     .reduce(function (result, paragraph) { 
