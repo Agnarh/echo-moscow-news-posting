@@ -1,0 +1,14 @@
+{
+  "name": "echo-moscow-news-posting",
+  "version": "1.0.0",
+  "description": "",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Agnarh/echo-moscow-news-posting.git"
+  },
+  "license": "MIT",
+  "dependencies": {
+    "cheerio": "^0.22.0",
+    "request": "^2.79.0"
+  }
+}
