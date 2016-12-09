@@ -1,6 +1,7 @@
 var request = require('request');
 var cheerio = require("cheerio");
-var siteSettings = require('./config').siteSettings;
+var config = require('./config');
+var siteSettings = config.siteSettings;
 var _ = require('lodash');
 
 var newsUrlTemplateFunc = _.template(siteSettings.newsUrlTemplate);
@@ -23,7 +24,7 @@ module.exports = {
         });
     },
     getNewsUrls: function (latestNewsNumber) {
-        return _.range(latestNewsNumber, latestNewsNumber - siteSettings.count, -1)
+        return _.range(latestNewsNumber, latestNewsNumber - config.count, -1)
             .map(index => newsUrlTemplateFunc({index}));
     },
     processNewsUrl: function (url) {
@@ -56,7 +57,5 @@ module.exports = {
             });
         });
     },
-    processResultNews: function (news) {
-        console.log(news.filter(item => item));
-    }
+    processResultNews: news => news.filter(item => item)
 };
