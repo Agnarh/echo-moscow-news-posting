@@ -6,8 +6,10 @@ new Promise(newsProcessing.getLatestNewsNumber)
     .then(urls => Promise.all(urls.map(newsProcessing.processNewsUrl)))
     .then(newsProcessing.processResultNews)
     .then(rssProcessing.generateXMLString)
-    .then(function (xml) {
-        // console.log(xml);
+    .then(rssProcessing.writeRssFile)
+    .then(rssProcessing.sendRSSFile)
+    .then(function () {
+        console.log('RSS.xml file successfully sent!');
     })
     .catch(function (error) {
         console.log(error);
