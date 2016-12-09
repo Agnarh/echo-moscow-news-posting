@@ -77,5 +77,4 @@ module.exports = {
         });
     },
     processResultNews: news => news.filter(item => item)
->>>>>>> a5469180b5177cec246e16e7e8ff786861d42542
 };
