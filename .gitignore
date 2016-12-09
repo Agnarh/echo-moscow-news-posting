@@ -1,6 +1,7 @@
 config.json
 rssTemplate.js
 .vscode/
+RSS.xml
 
 # Logs
 logs
