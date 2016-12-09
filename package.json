@@ -9,6 +9,9 @@
   "license": "MIT",
   "dependencies": {
     "cheerio": "^0.22.0",
+    "dateformat": "^2.0.0",
+    "ftp": "^0.3.10",
+    "iconv-lite": "^0.4.15",
     "lodash": "^4.17.2",
     "request": "^2.79.0"
   }
