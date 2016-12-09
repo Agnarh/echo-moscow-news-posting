@@ -1,10 +1,24 @@
 var request = require('request');
 var cheerio = require("cheerio");
+var dateFormat = require('dateformat');
 var config = require('./config');
 var siteSettings = config.siteSettings;
 var _ = require('lodash');
 
 var newsUrlTemplateFunc = _.template(siteSettings.newsUrlTemplate);
+
+function processDateTime(dateStr, timeStr) {
+    if (!(dateStr || timeStr)) {
+        return '';
+    }
+    
+    var dateTokens = dateStr.split('.'),
+        timeTokens = timeStr.split(':'),
+        date = new Date(+dateTokens[2], +dateTokens[1] - 1, +dateTokens[0], +timeTokens[0], +timeTokens[1]),
+        dateString = dateFormat(date, 'ddd, d mmm yyyy HH:MM:ss');
+    
+    return dateString + ' +0400';
+}
 
 module.exports = {
     getLatestNewsNumber: function (fulfill, reject) {
@@ -44,16 +58,21 @@ module.exports = {
                     .map(function () { return $(this).text(); })
                     .get()
                     .reduce(function (result, paragraph) { 
-                        result += paragraph; 
+                        result += paragraph.trim(); 
                         return result; 
                     }, '')
                     .trim();
 
-                result.pubDate = [siteSettings.newsDateSelector, siteSettings.newsTimeSelector]
-                    .map(item => $(item).text().trim())
-                    .join(' ');
+                result.pubDate = processDateTime.apply(
+                    null,
+                    [siteSettings.newsDateSelector, siteSettings.newsTimeSelector].map(item => $(item).text().trim())
+                );
 
-                fulfill(result);
+                if (result.title && result.text && result.pubDate) {
+                    fulfill(result);
+                } else {
+                    fulfill(null);
+                }           
             });
         });
     },
