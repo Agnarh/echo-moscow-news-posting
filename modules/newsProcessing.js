@@ -1,7 +1,7 @@
 var request = require('request');
 var cheerio = require("cheerio");
 var dateFormat = require('dateformat');
-var config = require('./config');
+var config = require('../config');
 var siteSettings = config.siteSettings;
 var _ = require('lodash');
 
@@ -14,10 +14,9 @@ function processDateTime(dateStr, timeStr) {
     
     var dateTokens = dateStr.split('.'),
         timeTokens = timeStr.split(':'),
-        date = new Date(+dateTokens[2], +dateTokens[1] - 1, +dateTokens[0], +timeTokens[0], +timeTokens[1]),
-        dateString = dateFormat(date, 'ddd, d mmm yyyy HH:MM:ss');
+        date = new Date(+dateTokens[2], +dateTokens[1] - 1, +dateTokens[0], +timeTokens[0], +timeTokens[1]);
     
-    return dateString + ' +0400';
+    return dateFormat(date, 'ddd, d mmm yyyy HH:MM:ss') + ' +0400';
 }
 
 module.exports = {
@@ -49,12 +48,9 @@ module.exports = {
                     return;
                 }
 
-                var result = { url: url };
                 var $ = cheerio.load(body);
-
-                result.title = $(siteSettings.newsTitleSelector).text().trim();
-
-                result.text = $(siteSettings.newsTextSelector)
+                var title = $(siteSettings.newsTitleSelector).text().trim();
+                var text = $(siteSettings.newsTextSelector)
                     .map(function () { return $(this).text(); })
                     .get()
                     .reduce(function (result, paragraph) { 
@@ -63,13 +59,17 @@ module.exports = {
                     }, '')
                     .trim();
 
-                result.pubDate = processDateTime.apply(
-                    null,
-                    [siteSettings.newsDateSelector, siteSettings.newsTimeSelector].map(item => $(item).text().trim())
-                );
+                var dateStr = $(siteSettings.newsDateSelector).text().trim();
+                var timeStr = $(siteSettings.newsTimeSelector).text().trim();
+                var pubDate = processDateTime(dateStr, timeStr);
 
-                if (result.title && result.text && result.pubDate) {
-                    fulfill(result);
+                if (title && text && pubDate) {
+                    fulfill({ 
+                        url, 
+                        title: _.unescape(title), 
+                        text: _.unescape(text), 
+                        pubDate
+                    });
                 } else {
                     fulfill(null);
                 }           

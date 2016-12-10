@@ -1,5 +1,5 @@
-var newsProcessing = require('./newsProcessing');
-var rssProcessing = require('./rssProcessing');
+var newsProcessing = require('./modules/newsProcessing');
+var rssProcessing = require('./modules/rssProcessing');
 
 new Promise(newsProcessing.getLatestNewsNumber)
     .then(newsProcessing.getNewsUrls)
