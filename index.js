@@ -12,6 +12,5 @@ new Promise(newsProcessing.getLatestNewsNumber)
         console.log('RSS.xml file successfully sent!');
     })
     .catch(function (error) {
-        console.log(error);
+        console.log(error.message);
     });
-
