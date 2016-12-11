@@ -17,7 +17,7 @@ module.exports = {
             
             fs.writeFile(rssSettings.rssFileName, buffer, function (error) {
                 if (error) {
-                    reject(error.message);
+                    reject(error);
                 }
 
                 fulfill();
@@ -32,7 +32,7 @@ module.exports = {
                 client.put(rssSettings.rssFileName, rssSettings.rssDestFilePath, function (error) {
                     if (error) {
                         client.destroy();
-                        reject(error.message);
+                        reject(error);
                     }
                     
                     client.end();
