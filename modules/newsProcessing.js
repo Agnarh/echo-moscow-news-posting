@@ -44,7 +44,7 @@ module.exports = {
         return new Promise(function (fulfill, reject) {
             request({ uri: url }, function (error, response, body) {
                 if (error || response.statusCode !== 200) {
-                    fulfill(null);
+                    fulfill({ url, error });
                     return;
                 }
 
@@ -71,10 +71,28 @@ module.exports = {
                         pubDate
                     });
                 } else {
-                    fulfill(null);
+                    fulfill({ url, error: { message: 'Title, text or publication date are empty!' } });
                 }           
             });
         });
     },
-    processResultNews: news => news.filter(item => item)
+    processResultNews: function (news) {
+        return new Promise(function (fulfill, reject) {
+            var erroredNews = news.filter(item => item.error),
+                validNews = news.filter(item => !item.error);
+
+            if (!validNews.length) {
+                reject({ message: 'Unable to process last ' + config.count + 'news!' });
+                return;
+            }
+
+            if (erroredNews.length) {
+                console.log('Errors during processing news:');
+                erroredNews.forEach(item => console.log(item.url, '->', item.error.message));
+                console.log('Proceed with valid', validNews.length, 'news...');
+            }
+            
+            fulfill(validNews);
+        });
+    }
 };
