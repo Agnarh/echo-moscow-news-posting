@@ -54,7 +54,7 @@ module.exports = {
                     .map(function () { return $(this).text(); })
                     .get()
                     .reduce(function (result, paragraph) { 
-                        result += paragraph.trim(); 
+                        result += paragraph.trim().replace(/<[^>]*>/ig, ''); 
                         return result; 
                     }, '')
                     .trim();
